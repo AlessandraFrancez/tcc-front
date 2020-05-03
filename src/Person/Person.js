@@ -5,9 +5,10 @@ import './Person.css'
 const person = (props) => {
     return (
         <div className="Person">
-            <p onClick={props.click}>I'm a person ({props.name}) and I am {Math.floor(Math.random() * 30)} years old</p>
+            <p>I'm a person ({props.name}) and I am {Math.floor(Math.random() * 30)} years old</p>
             <p>{props.children}</p>
-            <input type="text"onChange={props.nameChange} value={props.name}/>
+            <input type="text" onChange={props.change} value={props.name}/>
+            <button onClick={props.click}>Remove</button>
         </div>
     )
 }
