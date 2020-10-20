@@ -1,19 +1,25 @@
 import React, { useState } from 'react';
 import './App.css';
 import Axios from 'axios';
-import { Nav, Form, FormControl, Button, Modal, FormText, Alert, ButtonGroup } from 'react-bootstrap';
+import { Nav, Form, FormControl, Button, Modal, FormText, Alert, ButtonGroup, Carousel, Badge, Radio } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Navbar from 'react-bootstrap/Navbar';
 import Api from './Api';
 import { Component } from 'react';
 import { If, IfComponent, Else } from 'react-statements-components';
+import ToggleButton from "react-bootstrap/ToggleButton";
 
 class App extends Component {
   constructor() {
     super();
     this.state = {
       list: [],
-      showWelcome: true
+      showWelcome: true,
+      responses: {
+        theme: false,
+        translation: false,
+        company: false
+      }
     }
     this.WelcomeMessage = this.WelcomeMessage.bind(this);
   }
@@ -36,30 +42,40 @@ class App extends Component {
     const { showWelcome } = this.state;
     if (showWelcome || true) {
       return (
-        <Alert variant="success" onClose={() => this.setState({showWelcome: false})} dismissible>
+        <Alert variant="success" onClose={() => this.setState({ showWelcome: false })} dismissible>
           <Alert.Heading>Bem vindo!</Alert.Heading>
           <p>
             Essa página foi criada para auxiliar o desenvolvimento de um trabalho de conclusão de curso de Engenharia de Produção do Cefet/RJ. Se quiser saber mais sobre o nosso trabalho, <Alert.Link href="#">clique aqui</Alert.Link>.
           </p>
           <hr />
           <p className="mb-0">
-            Para nos ajudar é só responder algumas perguntas sobre tweets que extraimos e analisamos utilizando inteligência artificial. O objetivo do nosso trabalho é identificar automaticamente tweets de <b>insatisfação</b> com empresas de Telecom, entãp se encontrar tweets positivos ou que não falam sobre esse assunto, não deixe de sinalizar. Obrigada!
+            Para nos ajudar é só responder algumas perguntas sobre tweets que extraimos e analisamos utilizando inteligência artificial. O objetivo do nosso trabalho é identificar automaticamente tweets de <b>insatisfação</b> com empresas de Telecom, então se encontrar tweets positivos ou que não falam sobre esse assunto, não deixe de sinalizar. Obrigada!
           </p>
         </Alert>
-        
+
       );
     }
   }
 
   render() {
 
-    const { list, showWelcome } = this.state;
+    const { list, showWelcome, responses } = this.state;
     let currentElement = { text: '' }
 
     if (list.length > 0) {
       currentElement = list[0]
       console.log(currentElement);
     }
+
+    const radios = [
+      { name: "Atendimento", value: "Atendimento" },
+      { name: "Preço", value: "Preço" },
+      { name: "Qualidade", value: "Qualidade" },
+      { name: "Indisponibilidade", value: "Indisponibilidade" },
+      { name: "Lentidão", value: "Lentidão" },
+    ];
+
+    console.log(responses);
 
     return (
       <React.Fragment>
@@ -74,10 +90,10 @@ class App extends Component {
         <br />
         <IfComponent>
           <If test={showWelcome}>
-          {this.WelcomeMessage}
+            {this.WelcomeMessage}
           </If>
         </IfComponent>
-        
+
         <Modal.Dialog size='xl'>
           <Modal.Header closeButton>
             <Modal.Title>Tweet</Modal.Title>
@@ -95,20 +111,25 @@ class App extends Component {
 
                   <Form.Group controlId="formTheme">
                     <hr />
-                    <Form.Label>Sobre o que esse tweet está falando?</Form.Label>
+                    <Badge variant="secondary">1</Badge><Form.Label>Sobre o que esse tweet está falando?</Form.Label>
                     {['Atendimento', 'Preço', 'Qualidade', 'Lentidão', 'Indisponibilidade'].map((type) => (
-                      <div key={`default-${type}`} className="mb-3">
+                      <div key={type} className="mb-3">
                         <Form.Check
                           type='radio'
-                          id={`default-${type}`}
+                          id={type}
                           label={type}
+                          name="themeOptions"
+                          onChange={e => {
+                            responses.theme = e.currentTarget.id;
+                            this.setState({ responses });
+                          }}
                         />
                       </div>
                     ))}
                   </Form.Group>
                   <Form.Group controlId="formTranslation">
                     <hr />
-                    <Form.Label>Realizamos uma tradução automática deste tweet, que nota você daria para ela?</Form.Label>
+                    <Badge variant="secondary">2</Badge><Form.Label>Realizamos uma tradução automática deste tweet, que nota você daria para ela?</Form.Label>
                     <Alert variant="info">
                       <p>
                         {currentElement.watsonTranslation}
@@ -116,25 +137,36 @@ class App extends Component {
                     </Alert>
                     <br />
                     <div style={{ alignSelf: 'center', textAlign: 'center' }}>
-                      <ButtonGroup aria-label="Basic example">
-                        <Button variant="danger">Muito ruim</Button>
-                        <Button variant="warning">Ruim</Button>
-                        <Button variant="info">Razoável</Button>
-                        <Button variant="secondary">Boa</Button>
-                        <Button variant="success">Perfeita</Button>
+                      <ButtonGroup
+                        aria-label="Basic example"
+                        onClick={e => {
+                          responses.translation = e.target.id;
+                          this.setState({ responses });
+                        }}
+                      >
+                        <Button variant="danger" id='1'>Muito ruim</Button>
+                        <Button variant="warning" id='2'>Ruim</Button>
+                        <Button variant="info" id='3'>Razoável</Button>
+                        <Button variant="secondary" id='4'>Boa</Button>
+                        <Button variant="success" id='5'>Perfeita</Button>
                       </ButtonGroup>
                     </div>
                   </Form.Group>
 
                   <Form.Group controlId="formTheme">
                     <hr />
-                    <Form.Label>É possível identificar sobre quem esse tweet está falando?</Form.Label>
+                    <Badge variant="secondary">3</Badge><Form.Label>É possível identificar sobre quem esse tweet está falando?</Form.Label>
                     {['Oi', 'Vivo', 'Tim', 'Claro', 'Algar', 'Não é possível', 'Este tweet não é sobre uma empresa de Telecom'].map((type) => (
-                      <div key={`default-${type}`} className="mb-3">
+                      <div key={type} className="mb-3">
                         <Form.Check
                           type='radio'
-                          id={`default-${type}`}
+                          id={type}
                           label={type}
+                          name="companyOptions"
+                          onChange={e => {
+                            responses.company = e.currentTarget.id;
+                            this.setState({ responses });
+                          }}
                         />
                       </div>
                     ))}

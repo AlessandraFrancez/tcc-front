@@ -3,8 +3,6 @@ Projeto em React que tem por objetivo permitir que usuários respondam questões
 
 TODO
 
-- Fazer botões funcionarem
-- Fazer radio buttons trabalharem em equipe <3
 - Retorno das respostas (Criar rota no back tb)
 - Menu inicial pedindo nome e se sabe inglês
 - Não exibir pergunta da tradução se o usuário não falar inglês
