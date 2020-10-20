@@ -19,9 +19,12 @@ class App extends Component {
         theme: false,
         translation: false,
         company: false
-      }
+      },
+      id: false
     }
     this.WelcomeMessage = this.WelcomeMessage.bind(this);
+    this.SaveQuestion = this.SaveQuestion.bind(this);
+    this.FetchNextItem = this.FetchNextItem.bind(this);
   }
 
   componentWillMount() {
@@ -32,9 +35,35 @@ class App extends Component {
         url: '/voting/questions'
       }).then((res) => {
         console.log(res.data);
-        this.setState({ list: res.data });
+        this.setState({ list: res.data, id: res.data[0].id });
       });
     }
+  }
+
+  FetchNextItem() {
+    let { list, id, responses } = this.state;
+    list = list.splice(0, 1);
+    id = list[0].id;
+    responses = {
+      theme: false,
+      translation: false,
+      company: false
+    };
+    this.setState({ list, id, responses });
+    this.forceUpdate();
+  }
+
+  SaveQuestion() {
+
+    const { responses, id } = this.state;
+
+    Api({
+      method: 'post',
+      url: '/voting/questions',
+      data: { data: responses, id }
+    }).then(res => {
+      this.FetchNextItem()
+    });
   }
 
   WelcomeMessage() {
@@ -175,8 +204,13 @@ class App extends Component {
               </Modal.Body>
 
               <Modal.Footer>
-                <Button variant="secondary">Close</Button>
-                <Button variant="primary">Save changes</Button>
+                <Button
+                  variant="secondary"
+                  className="modalFooter"
+                  onClick={this.SaveQuestion}
+                  disabled={!responses.translation || !responses.theme || !responses.company}
+                >Save</Button>
+                <Button variant="primary" className="modalFooter">Next</Button>
               </Modal.Footer>
             </If>
             <Else>

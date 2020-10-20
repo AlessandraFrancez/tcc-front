@@ -25,3 +25,9 @@
   min-width: 20px;
   margin-bottom: 10px;
 }
+
+.modalFooter{
+  text-align: center;
+  margin: 0 auto;
+  padding: 10px;
+}
