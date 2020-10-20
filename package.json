@@ -9,7 +9,8 @@
     "react-bootstrap": "^1.3.0",
     "react-dom": "^16.13.1",
     "react-scripts": "1.1.5",
-    "react-statements-components": "1.1.3"
+    "react-statements-components": "1.1.3",
+    "react-toastify": "^6.0.9"
   },
   "scripts": {
     "start": "react-scripts start",

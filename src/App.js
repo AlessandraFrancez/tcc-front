@@ -6,6 +6,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import Api from './Api';
 import { Component } from 'react';
 import { If, IfComponent, Else } from 'react-statements-components';
+import { toast } from 'react-toastify';
 
 class App extends Component {
   constructor() {
@@ -23,26 +24,54 @@ class App extends Component {
     this.WelcomeMessage = this.WelcomeMessage.bind(this);
     this.SaveQuestion = this.SaveQuestion.bind(this);
     this.FetchNextItem = this.FetchNextItem.bind(this);
+    this.themes = ['Atendimento', 'Cobertura', 'Cobrança', 'Preço', 'Qualidade', 'Elogio', 'Irrelevante/Sem sentido', 'Outro'];
   }
 
   componentWillMount() {
     let { list } = this.state;
     if (list.length === 0) {
       list = Api({
-        method: 'get',
-        url: '/voting/questions'
+        method: 'post',
+        url: '/voting/getQuestions',
+        headers: { 'content-type': 'application/json' }
       }).then((res) => {
         this.setState({ list: res.data, id: res.data[0].id });
       });
     }
   }
 
-  componentDidUpdate(prevProps, prevState){
+
+  handleUserInput(text) {
+    if (text.match(/[<>\\]/g).forEach((element) => {
+      text = text.replace(element, '');
+    }));
+
+    toast.warn('Caracteres não permitidos foram removidos', { size: 3 }, {
+      position: toast.POSITION.TOP_RIGHT
+    });
+    return text;
+  }
+
+  componentDidUpdate(prevProps, prevState) {
     const { list } = this.state;
 
-    console.log('Antes: ', prevState.list.length, 'Depois: ', list.length);
-    if (prevState.list.length !== list.length){
+    if (prevState.list.length !== list.length) {
       this.forceUpdate();
+    }
+
+    if (list.length < 3) {
+      console.log('Acabando..');
+      Api({
+        method: 'post',
+        url: '/voting/getQuestions',
+        headers: { 'content-type': 'application/json' },
+        data: {
+          ids: list.map(item => { return item.id })
+        }
+      }).then((res) => {
+        const moreItems = [...list, ...res.data];
+        this.setState({ list: moreItems });
+      });
     }
   }
 
@@ -65,7 +94,7 @@ class App extends Component {
 
     Api({
       method: 'post',
-      url: '/voting/questions',
+      url: '/voting/saveQuestion',
       data: { data: responses, id }
     }).then(res => {
       this.FetchNextItem()
@@ -100,8 +129,6 @@ class App extends Component {
     if (list.length > 0) {
       currentElement = list[0]
     }
-
-    console.log(responses);
 
     return (
       <React.Fragment>
@@ -149,8 +176,8 @@ class App extends Component {
                               responses.telecom = e.target.value === '1' ? true : false;
                               this.setState({ responses });
                             }}>
-                            <ToggleButton name="telecom" value="1">Sim</ToggleButton>
-                            <ToggleButton name="telecom" value="0">Não</ToggleButton>
+                            <ToggleButton name="telecom" value="1" variant={responses.telecom === true ? 'success' : 'primary'}>Sim</ToggleButton>
+                            <ToggleButton name="telecom" value="0" variant={responses.telecom === false ? 'success' : 'primary'}>Não</ToggleButton>
                           </ToggleButtonGroup>
                         </div>
                       </Col>
@@ -166,8 +193,8 @@ class App extends Component {
                               responses.consumer = e.target.value === '1' ? true : false;
                               this.setState({ responses });
                             }}>
-                            <ToggleButton name="consumer" value="1">Sim</ToggleButton>
-                            <ToggleButton name="consumer" value="0">Não</ToggleButton>
+                            <ToggleButton name="consumer" value="1" variant={responses.consumer === true ? 'success' : 'primary'}>Sim</ToggleButton>
+                            <ToggleButton name="consumer" value="0" variant={responses.consumer === false ? 'success' : 'primary'}>Não</ToggleButton>
                           </ToggleButtonGroup>
                         </div>
                       </Col>
@@ -175,23 +202,36 @@ class App extends Component {
                   </Form.Group>
                   <Form.Group controlId="formTheme">
                     <hr />
-                    <Badge variant="secondary">3</Badge><Form.Label>Sobre o que esse tweet está falando?</Form.Label>
-                    {['Atendimento', 'Preço', 'Qualidade', 'Lentidão', 'Indisponibilidade'].map((type) => (
-                      <div key={type} className="mb-3">
-                        <Form.Check
-                          type='radio'
-                          id={type}
-                          label={type}
-                          name="themeOptions"
-                          value={responses.theme}
+                    <div className="btn-group-justified">
+                      <Badge variant="secondary">3</Badge><Form.Label>Sobre o que esse tweet está falando?</Form.Label>
+                      {this.themes.map((type) => (
+                        <div key={type} className="mb-3">
+                          <Form.Check
+                            type='radio'
+                            id={type}
+                            label={type}
+                            name="themeOptions"
+                            value={responses.theme}
+                            onChange={e => {
+                              responses.theme = e.currentTarget.id;
+                              this.setState({ responses });
+                            }}
+                            checked={responses.theme === type}
+                          />
+                        </div>
+                      ))}
+                      <IfComponent>
+                        <If test={responses.theme === 'Outro'}>
+                          <Form.Control 
+                          placeholder="Intenção" 
+                          value={ responses.alternativeTheme}
                           onChange={e => {
-                            responses.theme = e.currentTarget.id;
+                            responses.alternativeTheme = e.target.value;
                             this.setState({ responses });
-                          }}
-                          checked={responses.theme === type}
-                        />
-                      </div>
-                    ))}
+                          }} />
+                        </If>
+                      </IfComponent>
+                    </div>
                   </Form.Group>
                   <Form.Group controlId="formTranslation">
                     <hr />
