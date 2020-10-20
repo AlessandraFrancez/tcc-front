@@ -1,13 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './App.css';
-import Axios from 'axios';
-import { Nav, Form, FormControl, Button, Modal, FormText, Alert, ButtonGroup, Carousel, Badge, Radio } from 'react-bootstrap';
+import { Nav, Form, Button, Modal, FormText, Alert, ButtonGroup, Badge, Row, Col, ToggleButton, ToggleButtonGroup } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Navbar from 'react-bootstrap/Navbar';
 import Api from './Api';
 import { Component } from 'react';
 import { If, IfComponent, Else } from 'react-statements-components';
-import ToggleButton from "react-bootstrap/ToggleButton";
 
 class App extends Component {
   constructor() {
@@ -34,15 +32,23 @@ class App extends Component {
         method: 'get',
         url: '/voting/questions'
       }).then((res) => {
-        console.log(res.data);
         this.setState({ list: res.data, id: res.data[0].id });
       });
     }
   }
 
+  componentDidUpdate(prevProps, prevState){
+    const { list } = this.state;
+
+    console.log('Antes: ', prevState.list.length, 'Depois: ', list.length);
+    if (prevState.list.length !== list.length){
+      this.forceUpdate();
+    }
+  }
+
   FetchNextItem() {
     let { list, id, responses } = this.state;
-    list = list.splice(0, 1);
+    list.splice(0, 1);
     id = list[0].id;
     responses = {
       theme: false,
@@ -93,16 +99,7 @@ class App extends Component {
 
     if (list.length > 0) {
       currentElement = list[0]
-      console.log(currentElement);
     }
-
-    const radios = [
-      { name: "Atendimento", value: "Atendimento" },
-      { name: "Preço", value: "Preço" },
-      { name: "Qualidade", value: "Qualidade" },
-      { name: "Indisponibilidade", value: "Indisponibilidade" },
-      { name: "Lentidão", value: "Lentidão" },
-    ];
 
     console.log(responses);
 
@@ -124,7 +121,7 @@ class App extends Component {
         </IfComponent>
 
         <Modal.Dialog size='xl'>
-          <Modal.Header closeButton>
+          <Modal.Header>
             <Modal.Title>Tweet</Modal.Title>
           </Modal.Header>
           <IfComponent>
@@ -137,10 +134,48 @@ class App extends Component {
                     </p>
                   </Alert>
                   <br />
-
+                  <Form.Group controlId="formRelevancy">
+                    <hr />
+                    <Row>
+                      <Col>
+                        <Badge variant="secondary">1</Badge><Form.Label>Esse tweet é sobre uma empresa de telecomunicações?</Form.Label>
+                        <div className="yesNoButtons">
+                          <ToggleButtonGroup
+                            name="telecom"
+                            type="radio"
+                            value={responses.telecom}
+                            className="yesNoButtons"
+                            onClick={e => {
+                              responses.telecom = e.target.value === '1' ? true : false;
+                              this.setState({ responses });
+                            }}>
+                            <ToggleButton name="telecom" value="1">Sim</ToggleButton>
+                            <ToggleButton name="telecom" value="0">Não</ToggleButton>
+                          </ToggleButtonGroup>
+                        </div>
+                      </Col>
+                      <Col>
+                        <Badge variant="secondary">2</Badge><Form.Label>Esse tweet é do ponto de vista do consumidor?</Form.Label>
+                        <div className="yesNoButtons">
+                          <ToggleButtonGroup
+                            name="consumer"
+                            type="radio"
+                            value={responses.consumer}
+                            className="yesNoButtons"
+                            onClick={e => {
+                              responses.consumer = e.target.value === '1' ? true : false;
+                              this.setState({ responses });
+                            }}>
+                            <ToggleButton name="consumer" value="1">Sim</ToggleButton>
+                            <ToggleButton name="consumer" value="0">Não</ToggleButton>
+                          </ToggleButtonGroup>
+                        </div>
+                      </Col>
+                    </Row>
+                  </Form.Group>
                   <Form.Group controlId="formTheme">
                     <hr />
-                    <Badge variant="secondary">1</Badge><Form.Label>Sobre o que esse tweet está falando?</Form.Label>
+                    <Badge variant="secondary">3</Badge><Form.Label>Sobre o que esse tweet está falando?</Form.Label>
                     {['Atendimento', 'Preço', 'Qualidade', 'Lentidão', 'Indisponibilidade'].map((type) => (
                       <div key={type} className="mb-3">
                         <Form.Check
@@ -148,17 +183,19 @@ class App extends Component {
                           id={type}
                           label={type}
                           name="themeOptions"
+                          value={responses.theme}
                           onChange={e => {
                             responses.theme = e.currentTarget.id;
                             this.setState({ responses });
                           }}
+                          checked={responses.theme === type}
                         />
                       </div>
                     ))}
                   </Form.Group>
                   <Form.Group controlId="formTranslation">
                     <hr />
-                    <Badge variant="secondary">2</Badge><Form.Label>Realizamos uma tradução automática deste tweet, que nota você daria para ela?</Form.Label>
+                    <Badge variant="secondary">4</Badge><Form.Label>Realizamos uma tradução automática deste tweet, que nota você daria para ela?</Form.Label>
                     <Alert variant="info">
                       <p>
                         {currentElement.watsonTranslation}
@@ -168,6 +205,7 @@ class App extends Component {
                     <div style={{ alignSelf: 'center', textAlign: 'center' }}>
                       <ButtonGroup
                         aria-label="Basic example"
+                        value={responses.translation}
                         onClick={e => {
                           responses.translation = e.target.id;
                           this.setState({ responses });
@@ -181,28 +219,28 @@ class App extends Component {
                       </ButtonGroup>
                     </div>
                   </Form.Group>
-
-                  <Form.Group controlId="formTheme">
+                  <Form.Group controlId="formCompany">
                     <hr />
-                    <Badge variant="secondary">3</Badge><Form.Label>É possível identificar sobre quem esse tweet está falando?</Form.Label>
+                    <Badge variant="secondary">5</Badge><Form.Label>É possível identificar sobre quem esse tweet está falando?</Form.Label>
                     {['Oi', 'Vivo', 'Tim', 'Claro', 'Algar', 'Não é possível', 'Este tweet não é sobre uma empresa de Telecom'].map((type) => (
                       <div key={type} className="mb-3">
                         <Form.Check
                           type='radio'
                           id={type}
                           label={type}
+                          value={responses.company}
                           name="companyOptions"
                           onChange={e => {
                             responses.company = e.currentTarget.id;
                             this.setState({ responses });
                           }}
+                          checked={responses.company === type}
                         />
                       </div>
                     ))}
                   </Form.Group>
                 </Form>
               </Modal.Body>
-
               <Modal.Footer>
                 <Button
                   variant="secondary"

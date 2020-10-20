@@ -31,3 +31,9 @@
   margin: 0 auto;
   padding: 10px;
 }
+
+.yesNoButtons{ 
+  margin: 0 auto;
+  position: relative;
+  text-align: center;
+}
