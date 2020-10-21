@@ -97,7 +97,8 @@ class App extends Component {
       url: '/voting/saveQuestion',
       data: { data: responses, id }
     }).then(res => {
-      this.FetchNextItem()
+      this.FetchNextItem();
+      window.scrollTo(0, 0);
     });
   }
 
@@ -222,13 +223,13 @@ class App extends Component {
                       ))}
                       <IfComponent>
                         <If test={responses.theme === 'Outro'}>
-                          <Form.Control 
-                          placeholder="Intenção" 
-                          value={ responses.alternativeTheme}
-                          onChange={e => {
-                            responses.alternativeTheme = e.target.value;
-                            this.setState({ responses });
-                          }} />
+                          <Form.Control
+                            placeholder="Intenção"
+                            value={responses.alternativeTheme}
+                            onChange={e => {
+                              responses.alternativeTheme = e.target.value;
+                              this.setState({ responses });
+                            }} />
                         </If>
                       </IfComponent>
                     </div>
@@ -255,14 +256,14 @@ class App extends Component {
                         <Button variant="warning" id='2'>Ruim</Button>
                         <Button variant="info" id='3'>Razoável</Button>
                         <Button variant="secondary" id='4'>Boa</Button>
-                        <Button variant="success" id='5'>Perfeita</Button>
+                        <Button variant="success" id='5'>Muito boa</Button>
                       </ButtonGroup>
                     </div>
                   </Form.Group>
                   <Form.Group controlId="formCompany">
                     <hr />
                     <Badge variant="secondary">5</Badge><Form.Label>É possível identificar sobre quem esse tweet está falando?</Form.Label>
-                    {['Oi', 'Vivo', 'Tim', 'Claro', 'Algar', 'Não é possível', 'Este tweet não é sobre uma empresa de Telecom'].map((type) => (
+                    {['Oi', 'Vivo', 'Tim', 'Claro', 'Nextel', 'Sercomtel', 'Algar', 'Não é possível identificar', 'Este tweet não é sobre uma empresa de Telecom', 'Outra'].map((type) => (
                       <div key={type} className="mb-3">
                         <Form.Check
                           type='radio'
@@ -278,17 +279,33 @@ class App extends Component {
                         />
                       </div>
                     ))}
+                    <IfComponent>
+                      <If test={responses.company === 'Outra'}>
+                        <Form.Control
+                          placeholder="Intenção"
+                          value={responses.alternativeTheme}
+                          onChange={e => {
+                            responses.alternativeCompany = e.target.value;
+                            this.setState({ responses });
+                          }} />
+                      </If>
+                    </IfComponent>
                   </Form.Group>
                 </Form>
               </Modal.Body>
               <Modal.Footer>
                 <Button
-                  variant="secondary"
+                  variant={ !responses.translation || !responses.theme || !responses.company ? "secondary" : "success"}
                   className="modalFooter"
                   onClick={this.SaveQuestion}
                   disabled={!responses.translation || !responses.theme || !responses.company}
                 >Save</Button>
-                <Button variant="primary" className="modalFooter">Next</Button>
+                <Button
+                  variant={ !responses.translation || !responses.theme || !responses.company ? "primary" : "success"}
+                  className="modalFooter"
+                  onClick={this.SaveQuestion}
+                  disabled={!responses.translation || !responses.theme || !responses.company}
+                >Next</Button>
               </Modal.Footer>
             </If>
             <Else>
