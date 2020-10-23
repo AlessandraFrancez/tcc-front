@@ -43,5 +43,31 @@
 }
 
 .custom-class {
-  background-color: #e06f6f;
+  background-color: #f5f249;
+}
+
+.dismissibleCards {
+  text-align: center;
+  color: #856404;
+  background-color: #fff3cd;
+  border-color: #ffeeba;
+  padding-right: 4rem;
+  position: relative;
+  padding: .75rem 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+  border-radius: .25rem;
+  flex-wrap: wrap;
+  break-inside: avoid-column;
+}
+
+.container {
+  text-align: center;
+  columns: 3;
+  column-fill: auto;
+}
+
+.boxOfCards {
+  /* width: 30%; */
+  break-inside: avoid-column;
 }

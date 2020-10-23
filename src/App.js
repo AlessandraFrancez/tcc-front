@@ -299,6 +299,7 @@ class App extends Component {
                     </div>
                     <IfComponent>
                       <If test={responses.translation !== '5' && responses.translation}>
+                        <br/>
                         <Badge variant="secondary">5</Badge><Form.Label>Como não ficou muito legal, consegue selecionar pra mim no texto que palavras estão muito ruins ou não foram traduzidas?</Form.Label>
                         <Alert variant="info">
                           <SelectionHighlighter
@@ -307,27 +308,30 @@ class App extends Component {
                             customClass="custom-class"
                           />
                         </Alert>
-                        {responses.selected.map((type) => (
-                          <div key={type}>
-                            <Alert
-                              value={type}
-                              variant='warning'
-                              dismissible
-                              size='sm'
-                              closeLabel={type}
-                              onClose={(show, e) => {
-                                const span = e.currentTarget.innerHTML.toString();
-                                const secondLastIndex = span.lastIndexOf('>', span.lastIndexOf('>')-1)
-                                const match = span.substring(secondLastIndex + 1, span.lastIndexOf("</span>"));
-                                const index = responses.selected.indexOf(match);
-                                if (index !== -1) {
-                                  responses.selected.splice(index, 1);
-                                }
-                                this.setState({ responses });
-                              }}
-                            >{type}</Alert>
-                          </div>
-                        ))}
+                        <div className="container">
+                          {responses.selected.map((type) => (
+                            <div key={type} className='boxOfCards'>
+                              <Alert
+                                value={type}
+                                variant='warning'
+                                dismissible
+                                size='sm'
+                                closeLabel={type}
+                                bsPrefix='dismissibleCards'
+                                onClose={(show, e) => {
+                                  const span = e.currentTarget.innerHTML.toString();
+                                  const secondLastIndex = span.lastIndexOf('>', span.lastIndexOf('>') - 1)
+                                  const match = span.substring(secondLastIndex + 1, span.lastIndexOf("</span>"));
+                                  const index = responses.selected.indexOf(match);
+                                  if (index !== -1) {
+                                    responses.selected.splice(index, 1);
+                                  }
+                                  this.setState({ responses });
+                                }}
+                              >{type}</Alert>
+                            </div>
+                          ))}
+                        </div>
                       </If>
                     </IfComponent>
                   </Form.Group>
