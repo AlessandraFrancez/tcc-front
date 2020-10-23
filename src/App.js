@@ -6,7 +6,8 @@ import Navbar from 'react-bootstrap/Navbar';
 import Api from './Api';
 import { Component } from 'react';
 import { If, IfComponent, Else } from 'react-statements-components';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import SelectionHighlighter from "react-highlight-selection";
 
 class App extends Component {
@@ -18,7 +19,8 @@ class App extends Component {
       responses: {
         theme: false,
         translation: false,
-        company: false
+        company: false,
+        selected: []
       },
       id: false
     }
@@ -26,7 +28,7 @@ class App extends Component {
     this.SaveQuestion = this.SaveQuestion.bind(this);
     this.FetchNextItem = this.FetchNextItem.bind(this);
     this.selectionHandler = this.selectionHandler.bind(this);
-    this.themes = ['Atendimento', 'Cobertura', 'Cobrança', 'Preço', 'Qualidade', 'Elogio', 'Irrelevante/Sem sentido', 'Outro', 'Mais de uma opção'];
+    this.themes = ['Atendimento', 'Cobertura', 'Cobrança', 'Preço', 'Qualidade', 'Elogio', 'Irrelevante/Sem sentido', 'Outro'];
   }
 
   componentWillMount() {
@@ -124,8 +126,27 @@ class App extends Component {
     }
   }
 
-  selectionHandler(selection){
-    console.log(selection)
+  selectionHandler(selection) {
+    console.log(selection.selection);
+    const { responses } = this.state;
+    console.log(selection.selection.length);
+    if (selection.selection.length > 1 && responses.selected.indexOf(selection.selection) === -1) {
+      if (responses.selected) {
+        responses.selected.push(selection.selection);
+      } else {
+        responses.selected = [selection.selection];
+      }
+      this.setState({ responses });
+    } else if (selection.selection.length === 1) {
+      console.log('entrei aqui');
+      toast.info('Favor selecionar palavras de no mínimo 2 caracters', { size: 3 }, {
+        position: "top-right",
+        autoClose: 5000,
+        pauseOnHover: true
+      });
+    }
+
+
   }
 
   render() {
@@ -139,6 +160,17 @@ class App extends Component {
 
     return (
       <React.Fragment>
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={true}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
         <Navbar bg="dark" variant="dark">
           <Navbar.Brand href="#home">TCC  - Avaliação de Tweets</Navbar.Brand>
           <Nav className="mr-auto">
@@ -238,16 +270,6 @@ class App extends Component {
                             }} />
                         </If>
                       </IfComponent>
-                      <IfComponent>
-                        <If test={responses.theme === 'Mais de uma opção'}>
-                          <SelectionHighlighter
-                            text={currentElement.text}
-                            selectionHandler={this.selectionHandler}
-                            customClass="custom-class"
-                          />
-                        </If>
-                      </IfComponent>
-
                     </div>
                   </Form.Group>
                   <Form.Group controlId="formTranslation">
@@ -275,6 +297,39 @@ class App extends Component {
                         <Button variant="success" id='5'>Muito boa</Button>
                       </ButtonGroup>
                     </div>
+                    <IfComponent>
+                      <If test={responses.translation !== '5' && responses.translation}>
+                        <Badge variant="secondary">5</Badge><Form.Label>Como não ficou muito legal, consegue selecionar pra mim no texto que palavras estão muito ruins ou não foram traduzidas?</Form.Label>
+                        <Alert variant="info">
+                          <SelectionHighlighter
+                            text={currentElement.watsonTranslation}
+                            selectionHandler={this.selectionHandler}
+                            customClass="custom-class"
+                          />
+                        </Alert>
+                        {responses.selected.map((type) => (
+                          <div key={type}>
+                            <Alert
+                              value={type}
+                              variant='warning'
+                              dismissible
+                              size='sm'
+                              closeLabel={type}
+                              onClose={(show, e) => {
+                                const span = e.currentTarget.innerHTML.toString();
+                                const secondLastIndex = span.lastIndexOf('>', span.lastIndexOf('>')-1)
+                                const match = span.substring(secondLastIndex + 1, span.lastIndexOf("</span>"));
+                                const index = responses.selected.indexOf(match);
+                                if (index !== -1) {
+                                  responses.selected.splice(index, 1);
+                                }
+                                this.setState({ responses });
+                              }}
+                            >{type}</Alert>
+                          </div>
+                        ))}
+                      </If>
+                    </IfComponent>
                   </Form.Group>
                   <Form.Group controlId="formCompany">
                     <hr />
