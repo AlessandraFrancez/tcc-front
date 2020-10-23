@@ -7,6 +7,7 @@ import Api from './Api';
 import { Component } from 'react';
 import { If, IfComponent, Else } from 'react-statements-components';
 import { toast } from 'react-toastify';
+import SelectionHighlighter from "react-highlight-selection";
 
 class App extends Component {
   constructor() {
@@ -24,7 +25,8 @@ class App extends Component {
     this.WelcomeMessage = this.WelcomeMessage.bind(this);
     this.SaveQuestion = this.SaveQuestion.bind(this);
     this.FetchNextItem = this.FetchNextItem.bind(this);
-    this.themes = ['Atendimento', 'Cobertura', 'Cobrança', 'Preço', 'Qualidade', 'Elogio', 'Irrelevante/Sem sentido', 'Outro'];
+    this.selectionHandler = this.selectionHandler.bind(this);
+    this.themes = ['Atendimento', 'Cobertura', 'Cobrança', 'Preço', 'Qualidade', 'Elogio', 'Irrelevante/Sem sentido', 'Outro', 'Mais de uma opção'];
   }
 
   componentWillMount() {
@@ -120,6 +122,10 @@ class App extends Component {
 
       );
     }
+  }
+
+  selectionHandler(selection){
+    console.log(selection)
   }
 
   render() {
@@ -232,6 +238,16 @@ class App extends Component {
                             }} />
                         </If>
                       </IfComponent>
+                      <IfComponent>
+                        <If test={responses.theme === 'Mais de uma opção'}>
+                          <SelectionHighlighter
+                            text={currentElement.text}
+                            selectionHandler={this.selectionHandler}
+                            customClass="custom-class"
+                          />
+                        </If>
+                      </IfComponent>
+
                     </div>
                   </Form.Group>
                   <Form.Group controlId="formTranslation">
@@ -295,13 +311,13 @@ class App extends Component {
               </Modal.Body>
               <Modal.Footer>
                 <Button
-                  variant={ !responses.translation || !responses.theme || !responses.company ? "secondary" : "success"}
+                  variant={!responses.translation || !responses.theme || !responses.company ? "secondary" : "success"}
                   className="modalFooter"
                   onClick={this.SaveQuestion}
                   disabled={!responses.translation || !responses.theme || !responses.company}
                 >Save</Button>
                 <Button
-                  variant={ !responses.translation || !responses.theme || !responses.company ? "primary" : "success"}
+                  variant={!responses.translation || !responses.theme || !responses.company ? "primary" : "success"}
                   className="modalFooter"
                   onClick={this.SaveQuestion}
                   disabled={!responses.translation || !responses.theme || !responses.company}

@@ -41,3 +41,7 @@
 .btn-group-justified{
   justify-content: center
 }
+
+.custom-class {
+  background-color: #e06f6f;
+}
