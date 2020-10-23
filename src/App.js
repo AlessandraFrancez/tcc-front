@@ -20,14 +20,18 @@ class App extends Component {
         theme: false,
         translation: false,
         company: false,
-        selected: []
+        selected: [],
+        clicked: false
       },
       id: false
-    }
+    },
+    this.questionNo = 2;
     this.WelcomeMessage = this.WelcomeMessage.bind(this);
     this.SaveQuestion = this.SaveQuestion.bind(this);
     this.FetchNextItem = this.FetchNextItem.bind(this);
     this.selectionHandler = this.selectionHandler.bind(this);
+    this.setIrrelevant = this.setIrrelevant.bind(this);
+    this.getQuestionNo = this.getQuestionNo.bind(this);
     this.themes = ['Atendimento', 'Cobertura', 'Cobrança', 'Preço', 'Qualidade', 'Elogio', 'Irrelevante/Sem sentido', 'Outro'];
   }
 
@@ -39,6 +43,7 @@ class App extends Component {
         url: '/voting/getQuestions',
         headers: { 'content-type': 'application/json' }
       }).then((res) => {
+        console.log(res);
         this.setState({ list: res.data, id: res.data[0].id });
       });
     }
@@ -149,10 +154,29 @@ class App extends Component {
 
   }
 
+  setIrrelevant() {
+    const { responses } = this.state;
+
+    if (responses.clicked && (!responses.theme || !responses.company)) {
+      responses.theme = 'Irrelevante/Sem sentido';
+      responses.company = 'Este tweet não é sobre uma empresa de Telecom';
+
+      this.setState({ responses });
+    }
+    return null;
+  }
+
+  getQuestionNo(){
+    console.log(this.questionNo);
+    this.questionNo += 1;
+    return this.questionNo;
+  }
+
   render() {
 
     const { list, showWelcome, responses } = this.state;
-    let currentElement = { text: '' }
+    let currentElement = { text: '' };
+    let questionNo = 2;
 
     if (list.length > 0) {
       currentElement = list[0]
@@ -213,6 +237,7 @@ class App extends Component {
                             className="yesNoButtons"
                             onClick={e => {
                               responses.telecom = e.target.value === '1' ? true : false;
+                              responses.clicked = true;
                               this.setState({ responses });
                             }}>
                             <ToggleButton name="telecom" value="1" variant={responses.telecom === true ? 'success' : 'primary'}>Sim</ToggleButton>
@@ -230,6 +255,7 @@ class App extends Component {
                             className="yesNoButtons"
                             onClick={e => {
                               responses.consumer = e.target.value === '1' ? true : false;
+                              responses.clicked = true;
                               this.setState({ responses });
                             }}>
                             <ToggleButton name="consumer" value="1" variant={responses.consumer === true ? 'success' : 'primary'}>Sim</ToggleButton>
@@ -239,42 +265,80 @@ class App extends Component {
                       </Col>
                     </Row>
                   </Form.Group>
-                  <Form.Group controlId="formTheme">
-                    <hr />
-                    <div className="btn-group-justified">
-                      <Badge variant="secondary">3</Badge><Form.Label>Sobre o que esse tweet está falando?</Form.Label>
-                      {this.themes.map((type) => (
-                        <div key={type} className="mb-3">
-                          <Form.Check
-                            type='radio'
-                            id={type}
-                            label={type}
-                            name="themeOptions"
-                            value={responses.theme}
-                            onChange={e => {
-                              responses.theme = e.currentTarget.id;
-                              this.setState({ responses });
-                            }}
-                            checked={responses.theme === type}
-                          />
+                  <IfComponent>
+                    <If test={responses.consumer && responses.telecom && responses.clicked}>
+                      <Form.Group controlId="formTheme">
+                        <hr />
+                        <div className="btn-group-justified">
+                          <Badge variant="secondary">3</Badge><Form.Label>Sobre o que esse tweet está falando?</Form.Label>
+                          {this.themes.map((type) => (
+                            <div key={type} className="mb-3">
+                              <Form.Check
+                                type='radio'
+                                id={type}
+                                label={type}
+                                name="themeOptions"
+                                value={responses.theme}
+                                onChange={e => {
+                                  responses.theme = e.currentTarget.id;
+                                  this.setState({ responses });
+                                }}
+                                checked={responses.theme === type}
+                              />
+                            </div>
+                          ))}
+                          <IfComponent>
+                            <If test={responses.theme === 'Outro'}>
+                              <Form.Control
+                                placeholder="Intenção"
+                                value={responses.alternativeTheme}
+                                onChange={e => {
+                                  responses.alternativeTheme = e.target.value;
+                                  this.setState({ responses });
+                                }} />
+                            </If>
+                          </IfComponent>
                         </div>
-                      ))}
-                      <IfComponent>
-                        <If test={responses.theme === 'Outro'}>
-                          <Form.Control
-                            placeholder="Intenção"
-                            value={responses.alternativeTheme}
-                            onChange={e => {
-                              responses.alternativeTheme = e.target.value;
-                              this.setState({ responses });
-                            }} />
-                        </If>
-                      </IfComponent>
-                    </div>
-                  </Form.Group>
+                      </Form.Group>
+                      <Form.Group controlId="formCompany">
+                        <hr />
+                        <Badge variant="secondary">4</Badge><Form.Label>É possível identificar sobre quem esse tweet está falando?</Form.Label>
+                        {['Oi', 'Vivo', 'Tim', 'Claro', 'Nextel', 'Sercomtel', 'Algar', 'Não é possível identificar', 'Outra'].map((type) => (
+                          <div key={type} className="mb-3">
+                            <Form.Check
+                              type='radio'
+                              id={type}
+                              label={type}
+                              value={responses.company}
+                              name="companyOptions"
+                              onChange={e => {
+                                responses.company = e.currentTarget.id;
+                                this.setState({ responses });
+                              }}
+                              checked={responses.company === type}
+                            />
+                          </div>
+                        ))}
+                        <IfComponent>
+                          <If test={responses.company === 'Outra'}>
+                            <Form.Control
+                              placeholder="Intenção"
+                              value={responses.alternativeTheme}
+                              onChange={e => {
+                                responses.alternativeCompany = e.target.value;
+                                this.setState({ responses });
+                              }} />
+                          </If>
+                        </IfComponent>
+                      </Form.Group>
+                    </If>
+                    <Else>
+                      {this.setIrrelevant()}
+                    </Else>
+                  </IfComponent>
                   <Form.Group controlId="formTranslation">
                     <hr />
-                    <Badge variant="secondary">4</Badge><Form.Label>Realizamos uma tradução automática deste tweet, que nota você daria para ela?</Form.Label>
+                    <Badge variant="secondary">{responses.consumer && responses.telecom && responses.clicked ? 5 : 3}</Badge><Form.Label>Realizamos uma tradução automática deste tweet, que nota você daria para ela?</Form.Label>
                     <Alert variant="info">
                       <p>
                         {currentElement.watsonTranslation}
@@ -299,8 +363,8 @@ class App extends Component {
                     </div>
                     <IfComponent>
                       <If test={responses.translation !== '5' && responses.translation}>
-                        <br/>
-                        <Badge variant="secondary">5</Badge><Form.Label>Como não ficou muito legal, consegue selecionar pra mim no texto que palavras estão muito ruins ou não foram traduzidas?</Form.Label>
+                        <br />
+                        <Badge variant="secondary">6</Badge><Form.Label>Como não ficou muito legal, consegue selecionar pra mim no texto que palavras estão muito ruins ou não foram traduzidas?</Form.Label>
                         <Alert variant="info">
                           <SelectionHighlighter
                             text={currentElement.watsonTranslation}
@@ -332,37 +396,6 @@ class App extends Component {
                             </div>
                           ))}
                         </div>
-                      </If>
-                    </IfComponent>
-                  </Form.Group>
-                  <Form.Group controlId="formCompany">
-                    <hr />
-                    <Badge variant="secondary">5</Badge><Form.Label>É possível identificar sobre quem esse tweet está falando?</Form.Label>
-                    {['Oi', 'Vivo', 'Tim', 'Claro', 'Nextel', 'Sercomtel', 'Algar', 'Não é possível identificar', 'Este tweet não é sobre uma empresa de Telecom', 'Outra'].map((type) => (
-                      <div key={type} className="mb-3">
-                        <Form.Check
-                          type='radio'
-                          id={type}
-                          label={type}
-                          value={responses.company}
-                          name="companyOptions"
-                          onChange={e => {
-                            responses.company = e.currentTarget.id;
-                            this.setState({ responses });
-                          }}
-                          checked={responses.company === type}
-                        />
-                      </div>
-                    ))}
-                    <IfComponent>
-                      <If test={responses.company === 'Outra'}>
-                        <Form.Control
-                          placeholder="Intenção"
-                          value={responses.alternativeTheme}
-                          onChange={e => {
-                            responses.alternativeCompany = e.target.value;
-                            this.setState({ responses });
-                          }} />
                       </If>
                     </IfComponent>
                   </Form.Group>
