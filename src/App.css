@@ -71,3 +71,16 @@
   /* width: 30%; */
   break-inside: avoid-column;
 }
+
+.mb-3 { 
+  /* columns: auto; */
+  max-width: fit-content;
+}
+
+.form-check {
+  max-width: fit-content;
+}
+
+.boxOfChecks {
+columns: 2;
+}
