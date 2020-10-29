@@ -84,3 +84,13 @@
 .boxOfChecks {
 columns: 2;
 }
+
+.wordsModal {
+  max-width: 80%;
+  padding: 10px;
+  margin: 0 auto ;
+}
+
+.rows {
+  margin: 0 auto;
+}
