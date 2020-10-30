@@ -1,12 +1,15 @@
 import React from 'react';
-import '../App.css';
-import { Form, Button, Modal, FormText, Alert, Badge, Row, Col, ToggleButton, ToggleButtonGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Form, Button, Modal, FormText, Alert, Badge, ToggleButton, ToggleButtonGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Api from '../Api';
 import { Component } from 'react';
 import { If, IfComponent, Else } from 'react-statements-components';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { FcIdea } from 'react-icons/fc';
+
+import '../App.css';
+import './Words.css';
 
 class Words extends Component {
   constructor() {
@@ -56,10 +59,15 @@ class Words extends Component {
     const { wordList } = this.state;
 
     if (wordList.length < 3) {
+      const ids = [];
+      wordList.forEach(item =>
+        ids.push(item.id));
+
       Api({
         method: 'post',
         url: '/fixWords/getWords',
-        headers: { 'content-type': 'application/json' }
+        headers: { 'content-type': 'application/json' },
+        data: { ids }
       }).then((res) => {
         const moreItems = [...wordList, ...res.data];
         this.setState({ wordList: moreItems });
@@ -81,15 +89,11 @@ class Words extends Component {
   }
 
   SaveWord() {
-    const { wordCorrection, wordList } = this.state;
-    const ids = [];
-    wordList.forEach(item =>
-      ids.push(item.id));
-
+    const { wordCorrection } = this.state;
     Api({
       method: 'post',
       url: '/fixWords/saveWord',
-      data: { data: wordCorrection, ids }
+      data: { data: wordCorrection }
     }).then(res => {
       this.FetchNextItem('word');
       window.scrollTo(0, 0);
@@ -107,89 +111,134 @@ class Words extends Component {
 
     return (
       <React.Fragment>
-        <Modal.Dialog style={{ 'min-width': '40%' }}>
-          <Modal.Header>
-            <Modal.Title>Correção de palavras</Modal.Title>
-          </Modal.Header>
-          <IfComponent>
-            <If test={wordList.length > 0 && currentWord && currentWord.word}>
-              <div className='wordsModal'>
-                <IfComponent>
-                  <If test={currentWord.type === 'repeated'}>
-                    <div className="rows">
-                      <Row>
-                        <Col>
-                          <OverlayTrigger
-                            key='tooltip1'
-                            placement='right'
-                            overlay={
-                              <Tooltip id={'tooltip-1'}>Esta palavra foi selecionada pois possui mais de 3 caracteres repetidos.</Tooltip>
-                            }>
-                            <Badge variant="danger">Caracteres repetidos</Badge>
-                          </OverlayTrigger>
-                        </Col>
-                        <Col>
-                          <Alert variant="info" style={{ 'textAlign': 'center', width: 'fit-content', margin: '0 auto' }}> {currentWord.word} </Alert>
-                        </Col>
-                      </Row>
-
-                    </div>
-                  </If>
-                  <Else>
-                    <Form.Label>Esta palavra foi identificada como traduzida incorretamente.</Form.Label>
-                  </Else>
-                </IfComponent>
-                <Form.Group controlId="correction">
-                  <br />
-                  <Badge variant="secondary">1</Badge><Form.Label>É possível corrigir esta palavra?</Form.Label>
-                  <div className="yesNoButtons">
-                    <ToggleButtonGroup
-                      name="fixable"
-                      type="radio"
-                      value={wordCorrection.ignore}
-                      className="yesNoButtons"
-                      onClick={e => {
-                        wordCorrection.ignore = e.target.value === '1' ? true : false;
-                        wordCorrection.clicked = true;
-                        this.setState({ wordCorrection });
-                      }}>
-                      <ToggleButton name="fixable" value="0" variant={wordCorrection.ignore === false && wordCorrection.clicked ? 'success' : 'primary'}>Sim</ToggleButton>
-                      <ToggleButton name="fixable" value="1" variant={wordCorrection.ignore === true ? 'success' : 'primary'}>Não</ToggleButton>
-                    </ToggleButtonGroup>
-                  </div>
+        <div className="row">
+          <Modal.Dialog size="lg" className="leftModal" >
+            <Modal.Header>
+              <Modal.Title>Correção de palavras</Modal.Title>
+            </Modal.Header>
+            <IfComponent>
+              <If test={wordList.length > 0 && currentWord && currentWord.word}>
+                <div className='wordsModal'>
                   <IfComponent>
-                    <If test={!wordCorrection.ignore && wordCorrection.clicked}>
-                      <br />
-                      <Badge variant="secondary">2</Badge><Form.Label>Nesse caso, por favor sugira uma correção</Form.Label>
-                      <Form.Control type="text"
-                        placeholder="Palavra"
-                        value={wordCorrection.replacement}
-                        onChange={e => {
-                          wordCorrection.replacement = e.target.value;
+                    <If test={currentWord.type === 'repeated'}>
+                      <div className="rows">
+                        {/* <Row>
+                          <Col> */}
+                            <OverlayTrigger
+                              key='tooltip1'
+                              placement='right'
+                              overlay={
+                                <Tooltip id={'tooltip-1'}>Esta palavra foi selecionada pois possui mais de 3 caracteres repetidos.</Tooltip>
+                              }>
+                              <div>
+
+                                <Alert variant="info" style={{ 'textAlign': 'center', width: 'fit-content', margin: '0 auto' }}> <Badge variant="info">Caracteres repetidos</Badge>
+                                  {currentWord.word} </Alert>
+                              </div>
+                            </OverlayTrigger>
+                          {/* </Col>
+                        </Row> */}
+
+                      </div>
+                    </If>
+                    <Else>
+                      <Form.Label>Esta palavra foi identificada como traduzida incorretamente.</Form.Label>
+                    </Else>
+                  </IfComponent>
+                  <Form.Group controlId="correction">
+                    <br />
+                    <Badge variant="secondary">1</Badge><Form.Label>É possível corrigir esta palavra?</Form.Label>
+                    <div className="yesNoButtons">
+                      <ToggleButtonGroup
+                        name="fixable"
+                        type="radio"
+                        value={wordCorrection.ignore}
+                        className="yesNoButtons"
+                        onClick={e => {
+                          wordCorrection.ignore = e.target.value === '1' ? true : false;
+                          wordCorrection.clicked = true;
                           this.setState({ wordCorrection });
-                        }} />
+                        }}>
+                        <ToggleButton name="fixable" value="0" variant={wordCorrection.ignore === false && wordCorrection.clicked ? 'success' : 'primary'}>Sim</ToggleButton>
+                        <ToggleButton name="fixable" value="1" variant={wordCorrection.ignore === true ? 'success' : 'primary'}>Não</ToggleButton>
+                      </ToggleButtonGroup>
+                    </div>
+                    <IfComponent>
+                      <If test={!wordCorrection.ignore && wordCorrection.clicked}>
+                        <br />
+                        <Badge variant="secondary">2</Badge><Form.Label>Nesse caso, por favor sugira uma correção</Form.Label>
+                        <Form.Control type="text"
+                          placeholder="Palavra"
+                          value={wordCorrection.replacement}
+                          onChange={e => {
+                            wordCorrection.replacement = e.target.value;
+                            this.setState({ wordCorrection });
+                          }} />
+                      </If>
+                    </IfComponent>
+                  </Form.Group>
+
+
+                  <IfComponent>
+                    <If test={wordCorrection.ignore && wordCorrection.clicked}>
+                      <Form.Group controlId="reason">
+                        <br />
+                        <Badge variant="secondary">2</Badge><Form.Label>Por que não?</Form.Label>
+                        <div className="boxOfChecks">
+                          {['Não é uma palavra', 'É um nome próprio', 'Não entendi o que a palavra quer dizer', 'Já está escrita corretamente'].map((type) => (
+                            <div key={type} className="mb-3">
+                              <Form.Check
+                                type='radio'
+                                id={type}
+                                label={type}
+                                value={wordCorrection.reason}
+                                name="companyOptions"
+                                onChange={e => {
+                                  wordCorrection.reason = e.currentTarget.id;
+                                  this.setState({ wordCorrection });
+                                }}
+                                checked={wordCorrection.reason === type}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </Form.Group>
                     </If>
                   </IfComponent>
-                </Form.Group>
-              </div>
-              <Modal.Footer>
-                <Button
-                  variant={!wordCorrection.replacement && !wordCorrection.ignore ? "secondary" : "success"}
-                  className="modalFooter"
-                  onClick={this.SaveWord}
-                  disabled={!wordCorrection.replacement && !wordCorrection.ignore}
-                >Save</Button>
-              </Modal.Footer>
-            </If>
-            <Else>
-              <Modal.Body>
-                <Form>
-                  <FormText>Parece que já corrigimos todas as palavras. Obrigada!</FormText>
-                </Form>
-              </Modal.Body>
-            </Else>
-          </IfComponent>
-        </Modal.Dialog>
+
+                </div>
+                <Modal.Footer>
+                  <Button
+                    variant={!wordCorrection.replacement && !wordCorrection.ignore ? "secondary" : "success"}
+                    className="modalFooter"
+                    onClick={this.SaveWord}
+                    disabled={!wordCorrection.replacement && !wordCorrection.ignore}
+                  >Salvar</Button>
+                </Modal.Footer>
+              </If>
+              <Else>
+                <Modal.Body>
+                  <Form>
+                    <FormText>Parece que já corrigimos todas as palavras. Obrigada!</FormText>
+                  </Form>
+                </Modal.Body>
+              </Else>
+            </IfComponent>
+          </Modal.Dialog>
+          <Modal.Dialog size="lg" className="rightModal">
+            <Modal.Header>
+              <Modal.Title>Dicas</Modal.Title>
+            </Modal.Header>
+            <Modal.Body className="dicas">
+              <FcIdea /> Qualquer variação de risada deve ser substituída por "haha" <br />
+              <FcIdea /> Gritos (ex: aaaaaa) podem virar "oh" <br />
+              <FcIdea /> Algumas coisas são difíceis de traduzir, nesse caso pode passar pra próxima <br />
+              <FcIdea /> Não esqueça dos acentos! <br />
+              <FcIdea /> Não se preocupe com a capitalização <br />
+            </Modal.Body>
+
+          </Modal.Dialog>
+        </div>
       </React.Fragment>
     );
   }
