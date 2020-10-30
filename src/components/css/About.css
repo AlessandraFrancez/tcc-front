@@ -1,0 +1,30 @@
+.table {
+  max-width: fit-content;
+  min-width: fit-content;
+  text-align: center;
+  margin: 0 auto;
+  padding: 70px;
+}
+
+.aboutContainer {
+  padding: 10px;
+  min-height: 50%;
+}
+
+.tableItem {
+  padding: 150px;
+}
+
+.img {
+  max-width: none;
+  width: 100%;
+  height: auto;
+  padding: 20px;
+}
+
+.text {
+  text-align: justify;
+  text-justify: inter-word;
+  max-width: 90%;
+  margin: 0 auto;
+}

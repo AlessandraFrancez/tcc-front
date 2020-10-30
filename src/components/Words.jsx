@@ -213,7 +213,7 @@ class Words extends Component {
                     className="modalFooter"
                     onClick={this.SaveWord}
                     disabled={!wordCorrection.replacement && !wordCorrection.ignore}
-                  >Salvar</Button>
+                  >Enviar</Button>
                 </Modal.Footer>
               </If>
               <Else>

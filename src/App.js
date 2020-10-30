@@ -8,8 +8,10 @@ import { If, IfComponent } from 'react-statements-components';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Switch, Route } from "react-router-dom";
+
 import Home from './components/Home'
 import Words from './components/Words.jsx';
+import About from './components/About.jsx';
 
 class App extends Component {
   constructor() {
@@ -86,6 +88,9 @@ class App extends Component {
           </Route>
           <Route path={"/words"}>
             <Words />
+          </Route>
+          <Route path={"/about"}>
+            <About />
           </Route>
         </Switch>
       </div>

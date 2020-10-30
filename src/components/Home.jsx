@@ -33,7 +33,7 @@ class Home extends Component {
   }
 
   componentWillMount() {
-    let { list, wordList } = this.state;
+    let { list } = this.state;
     if (list.length === 0) {
       list = Api({
         method: 'post',
@@ -41,16 +41,6 @@ class Home extends Component {
         headers: { 'content-type': 'application/json' }
       }).then((res) => {
         this.setState({ list: res.data, id: res.data[0].id });
-      });
-    }
-
-    if (wordList.length === 0) {
-      list = Api({
-        method: 'post',
-        url: '/fixWords/getWords',
-        headers: { 'content-type': 'application/json' }
-      }).then((res) => {
-        this.setState({ wordList: res.data });
       });
     }
   }
@@ -390,13 +380,7 @@ class Home extends Component {
                     className="modalFooter"
                     onClick={this.SaveQuestion}
                     disabled={!responses.translation || !responses.theme || !responses.company}
-                  >Save</Button>
-                  <Button
-                    variant={!responses.translation || !responses.theme || !responses.company ? "primary" : "success"}
-                    className="modalFooter"
-                    onClick={this.SaveQuestion}
-                    disabled={!responses.translation || !responses.theme || !responses.company}
-                  >Next</Button>
+                  >Enviar</Button>
                 </Modal.Footer>
               </If>
               <Else>
