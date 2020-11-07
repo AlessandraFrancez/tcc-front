@@ -47,13 +47,16 @@ class About extends Component {
   }
 
   handleUserInput(text) {
-    if (text.match(/[<>\\]/g).forEach((element) => {
-      text = text.replace(element, '');
-    }));
 
-    toast.warn('Caracteres não permitidos foram removidos', { size: 3 }, {
-      position: toast.POSITION.TOP_RIGHT
-    });
+    if (text.match(/[<>\\]/g)) {
+      text.match(/[<>\\]/g).forEach((element) => {
+        text = text.replace(element, '');
+      });
+
+      toast.warn('Caracteres não permitidos foram removidos', { size: 3 }, {
+        position: toast.POSITION.TOP_RIGHT
+      });
+    }
     return text;
   }
 

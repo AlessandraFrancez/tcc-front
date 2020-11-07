@@ -122,27 +122,35 @@ class Words extends Component {
                   <IfComponent>
                     <If test={currentWord.type === 'repeated'}>
                       <div className="rows">
-                        {/* <Row>
-                          <Col> */}
-                            <OverlayTrigger
-                              key='tooltip1'
-                              placement='right'
-                              overlay={
-                                <Tooltip id={'tooltip-1'}>Esta palavra foi selecionada pois possui mais de 3 caracteres repetidos.</Tooltip>
-                              }>
-                              <div>
+                        <OverlayTrigger
+                          key='tooltip1'
+                          placement='right'
+                          overlay={
+                            <Tooltip id={'tooltip-1'}>Esta palavra foi selecionada pois possui mais de 3 caracteres repetidos.</Tooltip>
+                          }>
+                          <div>
 
-                                <Alert variant="info" style={{ 'textAlign': 'center', width: 'fit-content', margin: '0 auto' }}> <Badge variant="info">Caracteres repetidos</Badge>
-                                  {currentWord.word} </Alert>
-                              </div>
-                            </OverlayTrigger>
-                          {/* </Col>
-                        </Row> */}
-
+                            <Alert variant="info" style={{ 'textAlign': 'center', width: 'fit-content', margin: '0 auto' }}> <Badge variant="info">Caracteres repetidos</Badge>
+                              {currentWord.word} </Alert>
+                          </div>
+                        </OverlayTrigger>
                       </div>
                     </If>
                     <Else>
-                      <Form.Label>Esta palavra foi identificada como traduzida incorretamente.</Form.Label>
+                      <div className="rows">
+                        <OverlayTrigger
+                          key='tooltip2'
+                          placement='right'
+                          overlay={
+                            <Tooltip id={'tooltip-2'}>Esta palavra foi identificada como traduzida incorretamente.</Tooltip>
+                          }>
+                          <div>
+
+                            <Alert variant="info" style={{ 'textAlign': 'center', width: 'fit-content', margin: '0 auto' }}> <Badge variant="warning">Tradução incorreta</Badge>
+                              {currentWord.word} </Alert>
+                          </div>
+                        </OverlayTrigger>
+                      </div>
                     </Else>
                   </IfComponent>
                   <Form.Group controlId="correction">
