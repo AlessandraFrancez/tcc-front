@@ -22,7 +22,8 @@ class Words extends Component {
         ignore: false,
         clicked: false
       },
-      id: false
+      id: false,
+      retry: 0
     }
 
     this.FetchNextItem = this.FetchNextItem.bind(this);
@@ -30,9 +31,9 @@ class Words extends Component {
   }
 
   componentWillMount() {
-    let { wordList } = this.state;
+    let { wordList, retry } = this.state;
 
-    if (wordList.length === 0) {
+    if (wordList.length === 0 && retry <= 3) {
       wordList = Api({
         method: 'post',
         url: '/fixWords/getWords',
@@ -40,7 +41,13 @@ class Words extends Component {
       }).then((res) => {
         this.setState({ wordList: res.data });
       });
+
+      retry += 1;
+      this.setState({ retry });
+    } else {
+      console.log('stoooooooooop');
     }
+    console.log(retry);
   }
 
 
@@ -56,9 +63,9 @@ class Words extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { wordList } = this.state;
+    let { wordList, retry } = this.state;
 
-    if (wordList.length < 3) {
+    if (wordList.length < 3 && retry <= 3) {
       const ids = [];
       wordList.forEach(item =>
         ids.push(item.id));
@@ -70,8 +77,10 @@ class Words extends Component {
         data: { ids }
       }).then((res) => {
         const moreItems = [...wordList, ...res.data];
-        this.setState({ wordList: moreItems });
+        if (res.length > 0) retry = 0; 
+        this.setState({ wordList: moreItems, retry });
       });
+      retry += 1;
     }
   }
 

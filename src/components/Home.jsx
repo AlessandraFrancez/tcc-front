@@ -22,9 +22,10 @@ class Home extends Component {
         selected: [],
         clicked: false
       },
-      id: false
+      id: false,
+      retry: 0
     }
-    
+
     this.SaveQuestion = this.SaveQuestion.bind(this);
     this.FetchNextItem = this.FetchNextItem.bind(this);
     this.selectionHandler = this.selectionHandler.bind(this);
@@ -33,8 +34,8 @@ class Home extends Component {
   }
 
   componentWillMount() {
-    let { list } = this.state;
-    if (list.length === 0) {
+    let { list, retry } = this.state;
+    if (list.length === 0 && retry <= 3) {
       list = Api({
         method: 'post',
         url: '/voting/getQuestions',
@@ -42,6 +43,8 @@ class Home extends Component {
       }).then((res) => {
         this.setState({ list: res.data, id: res.data[0].id });
       });
+      retry += 1;
+      this.setState({ retry });
     }
   }
 
@@ -58,13 +61,13 @@ class Home extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { list, wordList } = this.state;
+    let { list, retry } = this.state;
 
     if (prevState.list.length !== list.length) {
       this.forceUpdate();
     }
 
-    if (list.length < 3) {
+    if (list.length < 3 && retry <= 3) {
       Api({
         method: 'post',
         url: '/voting/getQuestions',
@@ -74,50 +77,27 @@ class Home extends Component {
         }
       }).then((res) => {
         const moreItems = [...list, ...res.data];
+        if (res.data.length > 0) retry = 0;
         this.setState({ list: moreItems });
       });
-    }
-
-    if (wordList.length < 3) {
-      Api({
-        method: 'post',
-        url: '/fixWords/getWords',
-        headers: { 'content-type': 'application/json' }
-      }).then((res) => {
-        const moreItems = [...wordList, ...res.data];
-        this.setState({ wordList: moreItems });
-      });
+      retry += 1;
+      this.setState({ retry });
     }
   }
 
-  FetchNextItem(type = 'question') {
-
-    if (type === 'question') {
-      let { list, id, responses } = this.state;
-      list.splice(0, 1);
-      id = list[0].id;
-      responses = {
-        theme: false,
-        translation: false,
-        company: false,
-        selected: [],
-        clicked: false
-      };
-      this.setState({ list, id, responses });
-      this.forceUpdate();
-    } else {
-      let { wordList, wordCorrection } = this.state;
-      wordList.splice(0, 1);
-      wordCorrection = {
-        id: wordList[0].id,
-        replacement: '',
-        ignore: false,
-        clicked: false
-      };
-      this.setState({ wordCorrection, wordList });
-      this.forceUpdate();
-    }
-
+  FetchNextItem() {
+    let { list, id, responses } = this.state;
+    list.splice(0, 1);
+    id = list[0].id;
+    responses = {
+      theme: false,
+      translation: false,
+      company: false,
+      selected: [],
+      clicked: false
+    };
+    this.setState({ list, id, responses });
+    this.forceUpdate();
   }
 
   SaveQuestion() {
