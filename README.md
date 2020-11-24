@@ -1,11 +1,3 @@
-Projeto em React que tem por objetivo permitir que usuários respondam questões sobre Tweets extraídos automaticamente.
+Projeto em React elaborado por Alessandra Francez como requisito parcial para conclusão de curso em Engenharia de Produção na instituição Cefet/RJ. 
 
-
-TODO
-
-- Menu inicial pedindo nome e se sabe inglês
-- Não exibir pergunta da tradução se o usuário não falar inglês
-- Criar cookie ou campo no localStorage com nome
-- Criar modal de welcome com instruções? 
-- Botão de pular? 
-- Tratar todos os inputs abertos e remover caracteres especiais) 
+Funciona em conjunto com o backend disponibilizado em AlessandraFrancez/tcc-node e tem por objetivo apresentar formulários para validar a qualidade da análise de sentimentos de tweets sobre organizações de telecomunicações.
