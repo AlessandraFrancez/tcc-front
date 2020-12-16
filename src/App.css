@@ -33,9 +33,12 @@
 }
 
 .yesNoButtons{ 
-  margin: 0 auto;
+  margin: 10px;
   position: relative;
   text-align: center;
+  min-width: 100%;
+  white-space: nowrap;
+  width: 190px;
 }
 
 .btn-group-justified{
@@ -93,4 +96,9 @@ columns: 2;
 
 .rows {
   margin: 0 auto;
+}
+
+.optionCol {
+  padding: 10px;
+  width: 30%;
 }
